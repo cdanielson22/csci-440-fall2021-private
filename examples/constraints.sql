@@ -50,3 +50,6 @@ CREATE TABLE albums_bak
         ON DELETE SET NULL
 ) ;
 
+
+
+

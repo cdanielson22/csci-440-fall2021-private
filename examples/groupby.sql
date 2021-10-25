@@ -102,5 +102,21 @@ HAVING Tracks > 2;
 
 
 
+SELECT artists.Name, COUNT(tracks.TrackID) as TrackCount, COUNT(albums.AlbumId) as Ablums
+FROM tracks
+         JOIN albums on tracks.AlbumId = albums.AlbumId
+         JOIN artists on albums.ArtistId = artists.ArtistId
+GROUP BY albums.ArtistId
+HAVING TrackCount > 2;
 
 
+SELECT FirstName, LastName, Title
+FROM employees
+GROUP BY ReportsTo = (SELECT EmployeeId FROM employees WHERE FirstName LIKE "Steve" AND LastName LIKE "Jobs");
+
+
+
+SELECT tracks.Name
+FROM tracks
+JOIN genres g on g.GenreId = tracks.GenreId
+WHERE g.Name LIKE "Ro%";

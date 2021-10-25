@@ -162,7 +162,7 @@ public class Employee extends Model {
     public static List<Employee> all(int page, int count) {
         try (Connection conn = DB.connect();
              PreparedStatement stmt = conn.prepareStatement(
-                     "SELECT * FROM employees LIMIT ?"
+                     "SELECT * FROM employees"
              )) {
             stmt.setInt(1, count);
             ResultSet results = stmt.executeQuery();

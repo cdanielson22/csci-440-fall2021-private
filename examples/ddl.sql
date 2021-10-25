@@ -47,3 +47,13 @@ WHERE ArtistName = "AC/DC";
 
 DROP VIEW tracksPlus;
 
+
+CREATE VIEW tracksPlus AS
+SELECT artists.Name as ArtistName,
+       tracks.TrackId as TrackId,
+       albums.Title as AlbumTitle,
+       genres.Name as Genre
+FROM tracks
+        JOIN albums ON tracks.AlbumId = albums.AlbumId
+        JOIN artists ON albums.ArtistId = artists.ArtistId
+        JOIN genres ON tracks.GenreId = genres.GenreId;
