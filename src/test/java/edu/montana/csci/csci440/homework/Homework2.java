@@ -44,11 +44,13 @@ public class Homework2 extends DBTest {
      */
     public void createGrammyInfoTable(){
         //TODO fill these in
-        executeDDL("create table grammy_categories");
-        executeDDL("create table grammy_infos");
+        executeDDL("CREATE TABLE grammy_categories(" +
+                "    Name, GrammyCategoryId" +
+                ");");
+        executeDDL("create table grammy_infos(ArtistId, AlbumId, TrackId, GrammyCategoryId, Status);");
 
         // TEST CODE
-        executeUpdate("INSERT INTO grammy_categories(Name) VALUES ('Greatest Ever');");
+        executeUpdate("INSERT INTO grammy_categories(Name, GrammyCategoryId) VALUES ('Greatest Ever', 1);");
         Object categoryId = executeSQL("SELECT GrammyCategoryId FROM grammy_categories").get(0).get("GrammyCategoryId");
 
         executeUpdate("INSERT INTO grammy_infos(ArtistId, AlbumId, TrackId, GrammyCategoryId, Status) VALUES (1, 1, 1, " + categoryId + ",'Won');");
@@ -69,7 +71,12 @@ public class Homework2 extends DBTest {
         Integer before = (Integer) executeSQL("SELECT COUNT(*) as COUNT FROM genres").get(0).get("COUNT");
 
         //TODO fill this in
-        executeUpdate("INSERT");
+        executeUpdate("INSERT INTO genres(Name)" +
+                "VALUES ('Ham')," +
+                "('Fruit')," +
+                "('Hover Dam')," +
+                "('Banana')," +
+                "('Coconut');");
 
         Integer after = (Integer) executeSQL("SELECT COUNT(*) as COUNT FROM genres").get(0).get("COUNT");
         assertEquals(before + 5, after);
