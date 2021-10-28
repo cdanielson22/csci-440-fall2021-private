@@ -45,12 +45,17 @@ public class Homework2 extends DBTest {
     public void createGrammyInfoTable(){
         //TODO fill these in
         executeDDL("CREATE TABLE grammy_categories(" +
-                "    Name, GrammyCategoryId" +
+                "    Name varchar(30), GrammyCategoryId INTEGER NOT NULL PRIMARY KEY" +
                 ");");
-        executeDDL("create table grammy_infos(ArtistId, AlbumId, TrackId, GrammyCategoryId, Status);");
+        executeDDL("create table grammy_infos(\n" +
+                "    ArtistId REFERENCES artists(ArtistId),\n" +
+                "    AlbumId REFERENCES albums (AlbumId),\n" +
+                "    TrackId REFERENCES tracks (TrackId),\n" +
+                "    GrammyCategoryId REFERENCES grammy_categories (GrammyCategoryId),\n" +
+                "    Status);");
 
         // TEST CODE
-        executeUpdate("INSERT INTO grammy_categories(Name, GrammyCategoryId) VALUES ('Greatest Ever', 1);");
+        executeUpdate("INSERT INTO grammy_categories(Name) VALUES ('Greatest Ever');");
         Object categoryId = executeSQL("SELECT GrammyCategoryId FROM grammy_categories").get(0).get("GrammyCategoryId");
 
         executeUpdate("INSERT INTO grammy_infos(ArtistId, AlbumId, TrackId, GrammyCategoryId, Status) VALUES (1, 1, 1, " + categoryId + ",'Won');");
