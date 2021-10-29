@@ -253,9 +253,10 @@ public class Track extends Model {
     public static List<Track> all(int page, int count, String orderBy) {
         try (Connection conn = DB.connect();
              PreparedStatement stmt = conn.prepareStatement(
-                     "SELECT * FROM tracks LIMIT ?"
+                     "SELECT * FROM tracks LIMIT ? OFFSET ?"
              )) {
             stmt.setInt(1, count);
+            stmt.setInt(2, count * page - count);
             ResultSet results = stmt.executeQuery();
             List<Track> resultList = new LinkedList<>();
             while (results.next()) {
@@ -267,4 +268,32 @@ public class Track extends Model {
         }
     }
 
+    public boolean update(){
+        try (Connection conn = DB.connect();
+             PreparedStatement stmt = conn.prepareStatement("UPDATE tracks SET Name = ? WHERE main.tracks.TrackId = ?")){
+            stmt.setString(1, this.name);
+            stmt.setLong(2, trackId);
+            stmt.executeUpdate();
+        } catch (SQLException sqlException){
+            throw new RuntimeException(sqlException);
+        }
+
+        return true;
+    }
+
+
+    @Override
+    public boolean create() {
+        try (Connection conn = DB.connect();
+             PreparedStatement stmt = conn.prepareStatement("INSERT INTO tracks(Name, AlbumId) VALUES (?, ?)")) {
+            stmt.setString(1, name);
+            stmt.setLong(2, albumId);
+            stmt.executeUpdate();
+            albumId = DB.getLastID(conn);
+        } catch (SQLException sqlException) {
+            throw new RuntimeException(sqlException);
+        }
+
+        return true;
+    }
 }

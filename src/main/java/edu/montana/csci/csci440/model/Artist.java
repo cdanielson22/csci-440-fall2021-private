@@ -95,4 +95,16 @@ public class Artist extends Model {
         return true;
     }
 
+    public boolean update(){
+        try (Connection conn = DB.connect();
+             PreparedStatement stmt = conn.prepareStatement("UPDATE artists SET Name = ? WHERE ArtistId = ?")){
+            stmt.setString(1, name);
+            stmt.setLong(2, artistId);
+            stmt.executeUpdate();
+        } catch (SQLException sqlException){
+            throw new RuntimeException(sqlException);
+        }
+
+        return true;
+    }
 }
