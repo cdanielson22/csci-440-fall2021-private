@@ -6,6 +6,18 @@ CREATE TABLE albums_bak (
     ArtistId INTEGER
 );
 
+--INSERT INTO grammy_categories(Name) VALUES ('Greatest Ever');
+
+CREATE TABLE grammy_categories(
+    Name,
+    GrammyCatagoryId
+);
+DROP TABLE grammy_categories;
+
+--"INSERT INTO grammy_infos(ArtistId, AlbumId, TrackId, GrammyCategoryId, Status)
+-- VALUES (1, 1, 1, " + categoryId + ",'Won');"
+
+
 DROP TABLE albums_bak;
 
 

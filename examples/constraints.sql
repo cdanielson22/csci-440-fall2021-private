@@ -50,6 +50,16 @@ CREATE TABLE albums_bak
         ON DELETE SET NULL
 ) ;
 
+CREATE TABLE grammy_categories(
+    Name varchar(30),
+    GrammyCategoryId INTEGER NOT NULL PRIMARY KEY
+);
 
 
+create table grammy_infos(
+    ArtistId REFERENCES artists(ArtistId),
+    AlbumId REFERENCES albums (AlbumId),
+    TrackId REFERENCES tracks (TrackId),
+    GrammyCategoryId REFERENCES grammy_categories (GrammyCategoryId),
+    Status);
 

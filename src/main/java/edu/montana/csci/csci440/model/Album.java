@@ -99,4 +99,19 @@ public class Album extends Model {
         return Collections.emptyList();
     }
 
+    @Override
+    public boolean create(){
+        try (Connection conn = DB.connect();
+             PreparedStatement stmt = conn.prepareStatement("INSERT INTO albums(Title, ArtistId) VALUES (?, ?)")) {
+            stmt.setString(1, this.title);
+            stmt.setLong(2, artistId);
+            stmt.executeUpdate();
+            albumId = DB.getLastID(conn);
+        } catch (SQLException sqlException) {
+            throw new RuntimeException(sqlException);
+        }
+
+        return true;
+    }
+
 }
