@@ -114,4 +114,17 @@ public class Album extends Model {
         return true;
     }
 
+    public boolean update(){
+        try (Connection conn = DB.connect();
+        PreparedStatement stmt = conn.prepareStatement("UPDATE albums SET Title = ? WHERE ArtistId = ?")){
+            stmt.setString(1, this.title);
+            stmt.setLong(2, artistId);
+            stmt.executeUpdate();
+        } catch (SQLException sqlException){
+            throw new RuntimeException(sqlException);
+        }
+
+        return true;
+    }
+
 }
