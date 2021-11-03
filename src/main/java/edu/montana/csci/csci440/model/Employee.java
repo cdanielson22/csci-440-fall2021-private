@@ -78,10 +78,12 @@ public class Employee extends Model {
         if (verify()) {
             try (Connection conn = DB.connect();
                  PreparedStatement stmt = conn.prepareStatement(
-                         "INSERT INTO employees (FirstName, LastName, Email) VALUES (?, ?, ?)")) {
+                         "INSERT INTO employees (FirstName, LastName, Email, Title, ReportsTo) VALUES (?, ?, ?, ?, ?)")) {
                 stmt.setString(1, this.firstName);
                 stmt.setString(2, this.lastName);
                 stmt.setString(3, this.email);
+                stmt.setString(4, this.title);
+                stmt.setLong(5, this.reportsTo);
 
 
                 stmt.executeUpdate();
