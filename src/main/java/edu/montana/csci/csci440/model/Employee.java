@@ -19,6 +19,11 @@ public class Employee extends Model {
 
     public Employee() {
         // new employee for insert
+        this.firstName = "";
+        this.lastName = "";
+        this.title = "";
+        this.email = "";
+        this.reportsTo = (long)(0);
     }
 
     private Employee(ResultSet results) throws SQLException {
@@ -29,6 +34,7 @@ public class Employee extends Model {
         reportsTo = results.getLong("ReportsTo");
         title = results.getString("Title");
     }
+
 
     public static List<Employee.SalesSummary> getSalesSummaries() {
         //TODO - a GROUP BY query to determine the sales (look at the invoices table), using the SalesSummary class
@@ -72,11 +78,11 @@ public class Employee extends Model {
         if (verify()) {
             try (Connection conn = DB.connect();
                  PreparedStatement stmt = conn.prepareStatement(
-                         "INSERT INTO employees (FirstName, LastName, Email, Title) VALUES (?, ?, ?, ?)")) {
-                stmt.setString(1, this.getFirstName());
-                stmt.setString(2, this.getLastName());
-                stmt.setString(3, this.getEmail());
-                stmt.setString(4, title);
+                         "INSERT INTO employees (FirstName, LastName, Email) VALUES (?, ?, ?)")) {
+                stmt.setString(1, this.firstName);
+                stmt.setString(2, this.lastName);
+                stmt.setString(3, this.email);
+
 
                 stmt.executeUpdate();
                 employeeId = DB.getLastID(conn);
@@ -136,6 +142,8 @@ public class Employee extends Model {
         this.reportsTo = reportsTo;
     }
 
+
+
     public List<Employee> getReports() {
         try (Connection conn = DB.connect();
              PreparedStatement stmt = conn.prepareStatement(
@@ -154,7 +162,7 @@ public class Employee extends Model {
     }
     public Employee getBoss() {
         //TODO implement
-        return null;
+        return Employee.find(this.reportsTo);
     }
 
     public static List<Employee> all() {
@@ -204,6 +212,7 @@ public class Employee extends Model {
 
     public void setReportsTo(Employee employee) {
         // TODO implement
+        this.reportsTo = employee.getEmployeeId();
     }
 
     public static class SalesSummary {
