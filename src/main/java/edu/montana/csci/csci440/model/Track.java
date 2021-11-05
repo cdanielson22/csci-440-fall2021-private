@@ -47,6 +47,14 @@ public class Track extends Model {
         genreId = results.getLong("GenreId");
     }
 
+    public static List<Track> getTracksForPlay(ResultSet results) throws SQLException{
+        List<Track> resultList = new LinkedList<>();
+        while (results.next()) {
+            resultList.add(new Track(results));
+        }
+        return resultList;
+    }
+
     public static Track find(long i) {
         try (Connection conn = DB.connect();
              PreparedStatement stmt = conn.prepareStatement("SELECT * FROM tracks WHERE TrackId=?")) {
@@ -88,7 +96,24 @@ public class Track extends Model {
         return null;
     }
     public List<Playlist> getPlaylists(){
-        return Collections.emptyList();
+        try(Connection conn = DB.connect();
+            PreparedStatement stmt = conn.prepareStatement(
+                    "SELECT * FROM playlists " +
+                            "JOIN playlist_track pt on playlists.PlaylistId = pt.PlaylistId " +
+                            " JOIN tracks t on pt.TrackId = t.TrackId " +
+                            " WHERE t.TrackId = "+trackId+" ORDER BY playlists.PlaylistId"
+
+            )) {
+            ResultSet results = stmt.executeQuery();
+            List<Playlist> resultList = Playlist.getPlayForTrack(results);
+
+            return resultList;
+
+        }catch (SQLException sqlException) {
+            throw new RuntimeException(sqlException);
+        }
+
+
     }
 
     public Long getTrackId() {
