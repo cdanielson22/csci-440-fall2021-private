@@ -314,4 +314,17 @@ public class Track extends Model {
         }
 
     }
+
+    @Override
+    public boolean verify() {
+        _errors.clear();
+        if (name == null){
+            addError("name cant be null");
+        }
+        if (albumId == null) {
+            addError("albumId cant be null");
+        }
+
+        return !hasErrors();
+    }
 }

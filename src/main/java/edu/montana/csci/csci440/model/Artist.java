@@ -107,4 +107,14 @@ public class Artist extends Model {
 
         return true;
     }
+
+    @Override
+    public boolean verify() {
+        _errors.clear();
+        if (name == null){
+            addError("Artsit name cant be null");
+        }
+
+        return !hasErrors();
+    }
 }
