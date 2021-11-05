@@ -127,4 +127,16 @@ public class Album extends Model {
         return true;
     }
 
+    @Override
+    public boolean verify(){
+        _errors.clear();
+        if(artistId == null) {
+            addError("albumId cant be null");
+        }
+        if (title == null || "".equals(title)){
+            addError("title cant be null");
+        }
+
+        return !hasErrors();
+    }
 }

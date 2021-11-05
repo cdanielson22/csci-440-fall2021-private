@@ -253,7 +253,7 @@ public class Track extends Model {
     public static List<Track> all(int page, int count, String orderBy) {
         try (Connection conn = DB.connect();
              PreparedStatement stmt = conn.prepareStatement(
-                     "SELECT * FROM tracks LIMIT ? OFFSET ?"
+                     "SELECT * FROM tracks ORDER BY "+orderBy+" LIMIT ? OFFSET ?"
              )) {
             stmt.setInt(1, count);
             stmt.setInt(2, count * page - count);
@@ -285,15 +285,33 @@ public class Track extends Model {
     @Override
     public boolean create() {
         try (Connection conn = DB.connect();
-             PreparedStatement stmt = conn.prepareStatement("INSERT INTO tracks(Name, AlbumId) VALUES (?, ?)")) {
+             PreparedStatement stmt = conn.prepareStatement("INSERT INTO tracks(Name, MediaTypeId, GenreId, Milliseconds, UnitPrice) VALUES (?, ?, ?, ?, ?)")) {
             stmt.setString(1, name);
-            stmt.setLong(2, albumId);
+
+            stmt.setLong(2, this.mediaTypeId);
+            stmt.setLong(3, this.genreId);
+            stmt.setLong(4, this.milliseconds);
+            stmt.setBigDecimal(5, this.unitPrice);
+
+
             stmt.executeUpdate();
-            albumId = DB.getLastID(conn);
+            trackId = DB.getLastID(conn);
+
         } catch (SQLException sqlException) {
             throw new RuntimeException(sqlException);
         }
 
         return true;
+    }
+
+    public void delete(){
+        try (Connection conn = DB.connect();
+             PreparedStatement stmt = conn.prepareStatement("DELETE FROM tracks WHERE TrackId=?")) {
+                stmt.setLong(1, trackId);
+                stmt.executeUpdate();
+        } catch (SQLException sqlException) {
+            throw new RuntimeException(sqlException);
+        }
+
     }
 }
