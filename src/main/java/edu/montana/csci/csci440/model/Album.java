@@ -25,6 +25,7 @@ public class Album extends Model {
         artistId = results.getLong("ArtistId");
     }
 
+
     public Artist getArtist() {
         return Artist.find(artistId);
     }
@@ -78,6 +79,7 @@ public class Album extends Model {
             throw new RuntimeException(sqlException);
         }
     }
+
 
     public static Album find(long i) {
         try (Connection conn = DB.connect();

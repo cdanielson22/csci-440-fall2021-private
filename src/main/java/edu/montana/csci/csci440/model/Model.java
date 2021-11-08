@@ -9,6 +9,7 @@ import java.util.Objects;
 // base class for entities
 public class Model {
 
+
     List<String> _errors = new LinkedList<>();
 
     public boolean create() {

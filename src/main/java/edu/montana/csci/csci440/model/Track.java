@@ -25,6 +25,8 @@ public class Track extends Model {
     private Long milliseconds;
     private Long bytes;
     private BigDecimal unitPrice;
+    private String albumTitle;
+    private String artistName;
 
     public static final String REDIS_CACHE_KEY = "cs440-tracks-count-cache";
 
@@ -45,6 +47,8 @@ public class Track extends Model {
         albumId = results.getLong("AlbumId");
         mediaTypeId = results.getLong("MediaTypeId");
         genreId = results.getLong("GenreId");
+        albumTitle = results.getString("AlbumTitle");
+        artistName = results.getString("ArtistName");
     }
 
     public static List<Track> getTracksForPlay(ResultSet results) throws SQLException{
@@ -57,7 +61,10 @@ public class Track extends Model {
 
     public static Track find(long i) {
         try (Connection conn = DB.connect();
-             PreparedStatement stmt = conn.prepareStatement("SELECT * FROM tracks WHERE TrackId=?")) {
+             PreparedStatement stmt = conn.prepareStatement("SELECT *, al.Title as AlbumTitle, at.Name as ArtistName FROM tracks " +
+                     "JOIN albums al on tracks.AlbumId = al.AlbumId " +
+                     "JOIN artists at on al.ArtistId = at.ArtistId " +
+                     "WHERE TrackId=?")) {
             stmt.setLong(1, i);
             ResultSet results = stmt.executeQuery();
             if (results.next()) {
@@ -187,13 +194,14 @@ public class Track extends Model {
     public String getArtistName() {
         // TODO implement more efficiently
         //  hint: cache on this model object
-        return getAlbum().getArtist().getName();
+        return artistName;
     }
 
     public String getAlbumTitle() {
         // TODO implement more efficiently
         //  hint: cache on this model object
-        return getAlbum().getTitle();
+
+        return albumTitle;
     }
 
     public static List<Track> advancedSearch(int page, int count,

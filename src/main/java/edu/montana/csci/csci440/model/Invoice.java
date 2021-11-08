@@ -30,6 +30,7 @@ public class Invoice extends Model {
         billingPostalCode = results.getString("BillingPostalCode");
         total = results.getBigDecimal("Total");
         invoiceId = results.getLong("InvoiceId");
+        billingCity = results.getString("BillingCity");
     }
 
     public List<InvoiceItem> getInvoiceItems(){
