@@ -38,7 +38,7 @@ public class Track extends Model {
         unitPrice = new BigDecimal("0");
     }
 
-    private Track(ResultSet results) throws SQLException {
+    private Track(ResultSet results, int i) throws SQLException {
         name = results.getString("Name");
         milliseconds = results.getLong("Milliseconds");
         bytes = results.getLong("Bytes");
@@ -49,6 +49,18 @@ public class Track extends Model {
         genreId = results.getLong("GenreId");
         albumTitle = results.getString("AlbumTitle");
         artistName = results.getString("ArtistName");
+
+    }
+
+    private Track(ResultSet results) throws SQLException {
+        name = results.getString("Name");
+        milliseconds = results.getLong("Milliseconds");
+        bytes = results.getLong("Bytes");
+        unitPrice = results.getBigDecimal("UnitPrice");
+        trackId = results.getLong("TrackId");
+        albumId = results.getLong("AlbumId");
+        mediaTypeId = results.getLong("MediaTypeId");
+        genreId = results.getLong("GenreId");
     }
 
     public static List<Track> getTracksForPlay(ResultSet results) throws SQLException{
@@ -68,7 +80,7 @@ public class Track extends Model {
             stmt.setLong(1, i);
             ResultSet results = stmt.executeQuery();
             if (results.next()) {
-                return new Track(results);
+                return new Track(results, 1);
             } else {
                 return null;
             }
