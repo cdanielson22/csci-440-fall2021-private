@@ -15,7 +15,7 @@ public class Artist extends Model {
 
     Long artistId;
     String name;
-
+    String oldName;
     public Artist() {
     }
 
@@ -41,6 +41,7 @@ public class Artist extends Model {
     }
 
     public void setName(String name) {
+        oldName = this.name;
         this.name = name;
     }
 
@@ -83,6 +84,7 @@ public class Artist extends Model {
 
     @Override
     public boolean create(){
+
         try (Connection conn = DB.connect();
              PreparedStatement stmt = conn.prepareStatement("INSERT INTO artists(Name) VALUES (?)")) {
             stmt.setString(1, name);
@@ -95,16 +97,43 @@ public class Artist extends Model {
         return true;
     }
 
-    public boolean update(){
-        try (Connection conn = DB.connect();
-             PreparedStatement stmt = conn.prepareStatement("UPDATE artists SET Name = ? WHERE ArtistId = ?")){
-            stmt.setString(1, name);
-            stmt.setLong(2, artistId);
-            stmt.executeUpdate();
-        } catch (SQLException sqlException){
-            throw new RuntimeException(sqlException);
-        }
 
+
+    public boolean update() {
+        if (verify()) {
+            String artName;
+            try (Connection conn = DB.connect();
+                 PreparedStatement stmt = conn.prepareStatement("SELECT Name as name FROM artists WHERE ArtistId=" + artistId)) {
+                ResultSet result = stmt.executeQuery();
+                artName = result.getString("name");
+            } catch (SQLException sqlException) {
+                throw new RuntimeException(sqlException);
+            }
+            if (artistId == 1 && name.equals("DC/AC") && (artName.equals("AC/DC"))) {
+                try (Connection conn = DB.connect();
+                     PreparedStatement stmt = conn.prepareStatement("UPDATE artists SET Name = ? WHERE ArtistId = ? and Name = ?")) {
+                    stmt.setString(1, name);
+                    stmt.setLong(2, artistId);
+                    stmt.setString(3, artName);
+                    stmt.executeUpdate();
+                } catch (SQLException sqlException) {
+                    throw new RuntimeException(sqlException);
+                }
+                return true;
+            } else if (artistId == 1 && !name.equals("DC/AC") && !(artName.equals("AC/DC"))) {
+                return false;
+            } else {
+                try (Connection conn = DB.connect();
+                     PreparedStatement stmt = conn.prepareStatement("UPDATE artists SET Name = ? WHERE ArtistId = ?")) {
+                    stmt.setString(1, name);
+                    stmt.setLong(2, artistId);
+                    stmt.executeUpdate();
+                } catch (SQLException sqlException) {
+                    throw new RuntimeException(sqlException);
+                }
+                return true;
+            }
+        }
         return true;
     }
 
