@@ -29,6 +29,7 @@ public class Track extends Model {
     private String artistName;
 
     public static final String REDIS_CACHE_KEY = "cs440-tracks-count-cache";
+    private static Long globalCache;
 
     public Track() {
         mediaTypeId = 1l;
@@ -91,17 +92,35 @@ public class Track extends Model {
 
     public static Long count() {
         Jedis redisClient = new Jedis(); // use this class to access redis and create a cache
-        try (Connection conn = DB.connect();
-             PreparedStatement stmt = conn.prepareStatement("SELECT COUNT(*) as Count FROM tracks")) {
-            ResultSet results = stmt.executeQuery();
-            if (results.next()) {
-                return results.getLong("Count");
-            } else {
-                throw new IllegalStateException("Should find a count!");
+        String cache = redisClient.get(REDIS_CACHE_KEY);
+
+        if(cache != null && Long.toString(globalCache).equals(cache)) {
+            return globalCache;
+        } else {
+            try(Connection conn = DB.connect();
+            PreparedStatement stmt = conn.prepareStatement("SELECT COUNT(*) as Count FROM tracks")) {
+                ResultSet results = stmt.executeQuery();
+                if(results.next()){ // make sure that results isnt null
+                    if(cache != null){
+                        if(Long.parseLong(cache) != results.getLong("Count")){ // making sure that the results arent the same as the cahce
+                            globalCache = results.getLong("Count");
+                            redisClient.set(REDIS_CACHE_KEY, Long.toString(globalCache));
+                        }
+                        return globalCache;
+                    } else {
+                        globalCache = results.getLong("Count");
+                        redisClient.set(REDIS_CACHE_KEY, Long.toString(globalCache));
+                        return Track.count();
+                    }
+                } else {
+                    throw new IllegalStateException("Should find a count!");
+                }
+
+            } catch (SQLException sqlException) {
+                throw new RuntimeException(sqlException);
             }
-        } catch (SQLException sqlException) {
-            throw new RuntimeException(sqlException);
         }
+
     }
 
     public Album getAlbum() {
@@ -341,6 +360,7 @@ public class Track extends Model {
 
             stmt.executeUpdate();
             trackId = DB.getLastID(conn);
+            globalCache = trackId;
 
         } catch (SQLException sqlException) {
             throw new RuntimeException(sqlException);

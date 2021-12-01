@@ -36,11 +36,7 @@ public class Employee extends Model {
     }
 
 
-    public static List<Employee.SalesSummary> getSalesSummaries() {
-        //TODO - a GROUP BY query to determine the sales (look at the invoices table), using the SalesSummary class
 
-        return Collections.emptyList();
-    }
 
     @Override
     public boolean verify() {
@@ -278,5 +274,29 @@ public class Employee extends Model {
         public BigDecimal getSalesTotals() {
             return salesTotals;
         }
+    }
+
+    public static List<Employee.SalesSummary> getSalesSummaries() {
+        //TODO - a GROUP BY query to determine the sales (look at the invoices table), using the SalesSummary class
+        try (Connection conn = DB.connect();
+             PreparedStatement stmt = conn.prepareStatement(
+                     "SELECT employees.FirstName as firstName, employees.LastName as lastName," +
+                             "employees.Email as email, COUNT(invoices.CustomerId) as salesCount," +
+                             "SUM(invoices.Total) as SalesTotal FROM invoices " +
+                             "JOIN customers on customers.customerId = invoices.CustomerId " +
+                             "JOIN employees on employees.EmployeeId = customers.SupportRepId " +
+                             "GROUP BY employees.Email"
+             )) {
+
+            ResultSet results = stmt.executeQuery();
+            List<SalesSummary> resultList = new LinkedList<>();
+            while (results.next()) {
+                resultList.add(new SalesSummary(results));
+            }
+            return resultList;
+        } catch (SQLException sqlException) {
+            throw new RuntimeException(sqlException);
+        }
+
     }
 }
