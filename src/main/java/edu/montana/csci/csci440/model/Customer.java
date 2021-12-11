@@ -58,14 +58,14 @@ public class Customer extends Model {
         return all(0, Integer.MAX_VALUE);
     }
 
-    public static List<Customer> all(int page, int count) {
+    public static List<Customer> all(int page, int count) { // this is where paging is implemented
         try (Connection conn = DB.connect();
-             PreparedStatement stmt = conn.prepareStatement(
+             PreparedStatement stmt = conn.prepareStatement( // I have an offset and a limit
                      "SELECT * FROM customers LIMIT ? OFFSET ?"
              )) {
-            stmt.setInt(1, count);
+            stmt.setInt(1, count); // here the offset and limit are set
             stmt.setInt(2, count * page - count);
-            ResultSet results = stmt.executeQuery();
+            ResultSet results = stmt.executeQuery(); // the result are return to a linked list and then  returned for the method
             List<Customer> resultList = new LinkedList<>();
             while (results.next()) {
                 resultList.add(new Customer(results));

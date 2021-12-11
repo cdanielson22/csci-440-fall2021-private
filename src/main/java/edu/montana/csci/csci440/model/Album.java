@@ -64,13 +64,14 @@ public class Album extends Model {
 
     public static List<Album> all(int page, int count) {
         try (Connection conn = DB.connect();
-             PreparedStatement stmt = conn.prepareStatement(
+             PreparedStatement stmt = conn.prepareStatement( // below paging is implemented
                      "SELECT * FROM albums LIMIT ? OFFSET ?"
              )) {
             stmt.setInt(1, count);
+            // I do the count*page to get the pages a do - count to get back to the first page
             stmt.setInt(2, count * page - count);
-            ResultSet results = stmt.executeQuery();
-            List<Album> resultList = new LinkedList<>();
+            ResultSet results = stmt.executeQuery(); // get the results
+            List<Album> resultList = new LinkedList<>(); // put the results in a list that can be returned
             while (results.next()) {
                 resultList.add(new Album(results));
             }
@@ -98,39 +99,57 @@ public class Album extends Model {
 
     public static List<Album> getForArtist(Long artistId) {
         // TODO implement
-        return Collections.emptyList();
-    }
-
-    @Override
-    public boolean create(){
         try (Connection conn = DB.connect();
-             PreparedStatement stmt = conn.prepareStatement("INSERT INTO albums(Title, ArtistId) VALUES (?, ?)")) {
-            stmt.setString(1, this.title);
-            stmt.setLong(2, artistId);
-            stmt.executeUpdate();
-            albumId = DB.getLastID(conn);
+             PreparedStatement stmt = conn.prepareStatement("SELECT * FROM albums " +
+                     "JOIN artists ON albums.ArtistId = artists.ArtistId " +
+                     "WHERE albums.ArtistId=?")) {
+            stmt.setLong(1, artistId);
+            ResultSet results = stmt.executeQuery();
+            List<Album> resultList = new LinkedList<>(); // put the results in a list that can be returned
+            while (results.next()) {
+                resultList.add(new Album(results));
+            }
+            return resultList;
         } catch (SQLException sqlException) {
             throw new RuntimeException(sqlException);
         }
-
-        return true;
+        //return Collections.emptyList();
     }
 
-    public boolean update(){
-        try (Connection conn = DB.connect();
-        PreparedStatement stmt = conn.prepareStatement("UPDATE albums SET Title = ? WHERE ArtistId = ?")){
-            stmt.setString(1, this.title);
-            stmt.setLong(2, artistId);
-            stmt.executeUpdate();
-        } catch (SQLException sqlException){
-            throw new RuntimeException(sqlException);
+    @Override
+    public boolean create(){ // create method
+        if(verify()) { // verify that ablumId not null
+            try (Connection conn = DB.connect(); // connection to the database
+                 PreparedStatement stmt = conn.prepareStatement("INSERT INTO albums(Title, ArtistId) VALUES (?, ?)")) { // query to insert into the DB
+                stmt.setString(1, this.title); // setting the two values that are the ? in the query
+                stmt.setLong(2, artistId);
+                stmt.executeUpdate(); // execute the update
+                albumId = DB.getLastID(conn);
+            } catch (SQLException sqlException) {
+                throw new RuntimeException(sqlException);
+            }
+        }
+        return true;
+
+    }
+
+    public boolean update(){ // method to update a row in the table
+        if(verify()) { // verifying that albumId is not null
+            try (Connection conn = DB.connect(); // connection to the database
+                 PreparedStatement stmt = conn.prepareStatement("UPDATE albums SET Title = ? WHERE ArtistId = ?")) { // query to update a row
+                stmt.setString(1, this.title); // setting the values of the ? in the query
+                stmt.setLong(2, artistId);
+                stmt.executeUpdate(); // execute the update
+            } catch (SQLException sqlException) {
+                throw new RuntimeException(sqlException);
+            }
         }
 
         return true;
     }
 
     @Override
-    public boolean verify(){
+    public boolean verify(){ // verify method that clears any current errors and makes sure that title and id are non null values
         _errors.clear();
         if(artistId == null) {
             addError("albumId cant be null");

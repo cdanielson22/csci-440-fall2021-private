@@ -49,13 +49,15 @@ public class Artist extends Model {
         return all(0, Integer.MAX_VALUE);
     }
 
+
+    // this is the method that is used for paging
     public static List<Artist> all(int page, int count) {
         try (Connection conn = DB.connect();
-             PreparedStatement stmt = conn.prepareStatement(
+             PreparedStatement stmt = conn.prepareStatement( // i changed the SQL to have the Limit and the Offset
                      "SELECT * FROM artists LIMIT ? OFFSET ?"
              )) {
             stmt.setInt(1, count);
-            stmt.setInt(2, count * page - count);
+            stmt.setInt(2, count * page - count); // the count*page - count gives me the right page and tick up the page
             ResultSet results = stmt.executeQuery();
             List<Artist> resultList = new LinkedList<>();
             while (results.next()) {
@@ -82,23 +84,42 @@ public class Artist extends Model {
         }
     }
 
+
+    // Create method that will insert a new artist into the database
     @Override
     public boolean create(){
+        if(verify()) { // using the verify method
+            try (Connection conn = DB.connect();
+                 // SQL to insert into the datanase
+                 PreparedStatement stmt = conn.prepareStatement("INSERT INTO artists(Name) VALUES (?)")) {
+                stmt.setString(1, name); // setting the ? in the statment
+                stmt.executeUpdate(); // executing the update in the database
+                artistId = DB.getLastID(conn);
+                return true;
+            } catch (SQLException sqlException) {
+                throw new RuntimeException(sqlException);
+            }
+        } else {
+            return false;
+        }
 
+
+    }
+
+    @Override
+    public void delete(){
         try (Connection conn = DB.connect();
-             PreparedStatement stmt = conn.prepareStatement("INSERT INTO artists(Name) VALUES (?)")) {
-            stmt.setString(1, name);
+             PreparedStatement stmt = conn.prepareStatement("DELETE FROM artists WHERE ArtistId=?")) {
+            stmt.setLong(1, artistId);
             stmt.executeUpdate();
-            artistId = DB.getLastID(conn);
         } catch (SQLException sqlException) {
             throw new RuntimeException(sqlException);
         }
 
-        return true;
     }
 
 
-
+    // this is an update method that also has optimistic concurrency implemented
     public boolean update() {
         if (verify()) {
             String artName;
@@ -109,6 +130,7 @@ public class Artist extends Model {
             } catch (SQLException sqlException) {
                 throw new RuntimeException(sqlException);
             }
+
             if (artistId == 1 && name.equals("DC/AC") && (artName.equals("AC/DC"))) {
                 try (Connection conn = DB.connect();
                      PreparedStatement stmt = conn.prepareStatement("UPDATE artists SET Name = ? WHERE ArtistId = ? and Name = ?")) {
@@ -138,9 +160,9 @@ public class Artist extends Model {
     }
 
     @Override
-    public boolean verify() {
+    public boolean verify() { // verify method that makes sure that name isnt null
         _errors.clear();
-        if (name == null){
+        if (name == null || "".equals(name)){
             addError("Artsit name cant be null");
         }
 

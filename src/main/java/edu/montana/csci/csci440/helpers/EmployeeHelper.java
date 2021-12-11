@@ -8,10 +8,12 @@ import java.util.List;
 import java.util.Map;
 
 public class EmployeeHelper {
+    static List<Employee> allEmployees = Employee.getAll();
+    private static int number;
 
     public static String makeEmployeeTree() {
         // TODO, change this to use a single query operation to get all employees
-        List<Employee> allEmployees = Employee.getAll();
+
         Employee employee = allEmployees.get(0);
 
         Map<Long, List<Employee>> employeeMap = new HashMap<>();
@@ -32,13 +34,16 @@ public class EmployeeHelper {
     // TODO - currently this method just uses the employee.getReports() function, which
     //  issues a query.  Change that to use the employeeMap variable instead
     public static String makeTree(Employee employee, Map<Long, List<Employee>> employeeMap) {
-        String list = "<li><a href='/employees" + employee.getEmployeeId() + "'>"
-                + employee.getEmail() + "</a><ul>";
-        List<Employee> reports = employeeMap.get(employee.getReportsTo());
+        StringBuilder list = new StringBuilder("<li><a href='/employees" + employee.getEmployeeId() + "'>"
+                + employee.getEmail() + "</a><ul>");
+        List<Employee> reports = employeeMap.get(employee.getEmployeeId());
         if (reports != null) {
             for (Employee report : reports) {
-                list += makeTree(report, employeeMap);
+                list.append(makeTree(report, employeeMap));
             }
+        } else{
+            number += 1;
+            makeTree(allEmployees.get(number), employeeMap);
         }
         return list + "</ul></li>";
     }

@@ -39,7 +39,7 @@ public class Playlist extends Model {
                      "SELECT * FROM tracks " +
                              " JOIN playlist_track pt on tracks.TrackId = pt.TrackId " +
                              " JOIN playlists p on p.PlaylistId = pt.PlaylistId " +
-                             " WHERE p.PlaylistId = "+playlistId+" ORDER BY tracks.Name"
+                             " WHERE p.PlaylistId = "+playlistId+" ORDER BY tracks.Name "
              )) {
             ResultSet results = stmt.executeQuery();
             List<Track> resultList = Track.getTracksForPlay(results);

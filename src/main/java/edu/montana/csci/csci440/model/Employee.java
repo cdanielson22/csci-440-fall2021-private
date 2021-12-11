@@ -54,17 +54,17 @@ public class Employee extends Model {
     }
 
     @Override
-    public boolean update() {
-        if (verify()) {
+    public boolean update() { // method that updates an employees inforation based on the Id
+        if (verify()) { // using the verify method
             try (Connection conn = DB.connect();
-                 PreparedStatement stmt = conn.prepareStatement(
+                 PreparedStatement stmt = conn.prepareStatement( // SQL statement for the update
                          "UPDATE employees SET FirstName=?, LastName=?, Email=? WHERE EmployeeId=?")) {
-                stmt.setString(1, this.getFirstName());
+                stmt.setString(1, this.getFirstName()); // filling in the ? marks in the statement
                 stmt.setString(2, this.getLastName());
                 stmt.setString(3, this.getEmail());
                 stmt.setLong(4, this.getEmployeeId());
-                stmt.executeUpdate();
-                return true;
+                stmt.executeUpdate(); // executing the statement
+                return true; // then I return true if it was a success and false otherwise
             } catch (SQLException sqlException) {
                 throw new RuntimeException(sqlException);
             }
@@ -74,19 +74,19 @@ public class Employee extends Model {
     }
 
     @Override
-    public boolean create() {
+    public boolean create() { // method that creates a new employee
         if (verify()) {
             try (Connection conn = DB.connect();
-                 PreparedStatement stmt = conn.prepareStatement(
+                 PreparedStatement stmt = conn.prepareStatement( // SQL statement for inserting a new employee in
                          "INSERT INTO employees (FirstName, LastName, Email, Title, ReportsTo) VALUES (?, ?, ?, ?, ?)")) {
                 stmt.setString(1, this.firstName);
                 stmt.setString(2, this.lastName);
-                stmt.setString(3, this.email);
+                stmt.setString(3, this.email); // setting the values for the ? in the statement
                 stmt.setString(4, this.title);
                 stmt.setLong(5, this.reportsTo);
 
 
-                stmt.executeUpdate();
+                stmt.executeUpdate(); // executing the statment
                 employeeId = DB.getLastID(conn);
                 return true;
             } catch (SQLException sqlException) {
@@ -98,10 +98,10 @@ public class Employee extends Model {
     }
 
     @Override
-    public void delete() {
+    public void delete() { // delete method that will delete an employee
         try (Connection conn = DB.connect();
              PreparedStatement stmt = conn.prepareStatement(
-                     "DELETE FROM employees WHERE EmployeeID=?")) {
+                     "DELETE FROM employees WHERE EmployeeID=?")) { // SQL statment
             stmt.setLong(1, this.getEmployeeId());
             stmt.executeUpdate();
         } catch (SQLException sqlException) {
@@ -145,7 +145,8 @@ public class Employee extends Model {
     }
 
 
-
+    // this is a get method that gets all the employees based on how they report to and returns
+    // them as a List of employees
     public List<Employee> getReports() {
         try (Connection conn = DB.connect();
              PreparedStatement stmt = conn.prepareStatement(
@@ -162,6 +163,8 @@ public class Employee extends Model {
             throw new RuntimeException(sqlException);
         }
     }
+
+    // get method that returns the boss of the employee
     public Employee getBoss() {
         //TODO implement
         return Employee.find(this.reportsTo);
@@ -171,6 +174,7 @@ public class Employee extends Model {
         return all(0, Integer.MAX_VALUE);
     }
 
+    // this is where paging is implemented
     public static List<Employee> all(int page, int count) {
         try (Connection conn = DB.connect();
              PreparedStatement stmt = conn.prepareStatement(
@@ -204,6 +208,8 @@ public class Employee extends Model {
             throw new RuntimeException(sqlException);
         }
     }
+
+    // this method finds an employee based on their email
     public static Employee findByEmail(String newEmailAddress) {
         try (Connection conn = DB.connect();
             PreparedStatement stmt = conn.prepareStatement("SELECT * FROM employees WHERE Email=?")) {
@@ -236,6 +242,7 @@ public class Employee extends Model {
         title = programmer;
     }
 
+    // this method is a set method for the employee reports
     public void setReportsTo(Employee employee) {
         // TODO implement
         this.reportsTo = employee.getEmployeeId();
@@ -276,6 +283,8 @@ public class Employee extends Model {
         }
     }
 
+    // this method gets the name of the employee and the total sales that he has done
+    // the totals are then stored in the sales summary class
     public static List<Employee.SalesSummary> getSalesSummaries() {
         //TODO - a GROUP BY query to determine the sales (look at the invoices table), using the SalesSummary class
         try (Connection conn = DB.connect();
