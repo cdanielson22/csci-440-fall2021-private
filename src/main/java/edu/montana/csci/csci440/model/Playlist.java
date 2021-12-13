@@ -31,7 +31,7 @@ public class Playlist extends Model {
         return resultList;
     }
 
-
+    // this method gets the tracks using the playlistId to get all tracks in a playlist
     public List<Track> getTracks(){
         // TODO implement, order by track name
         try (Connection conn = DB.connect();
@@ -66,6 +66,7 @@ public class Playlist extends Model {
         return all(0, Integer.MAX_VALUE);
     }
 
+    // this method lists all the playlists and it has paging implemented in it
     public static List<Playlist> all(int page, int count) {
         try (Connection conn = DB.connect();
              PreparedStatement stmt = conn.prepareStatement(
@@ -84,10 +85,12 @@ public class Playlist extends Model {
         }
     }
 
+    // this method is used to get all the values from a playlist
     public static Playlist find(int i) {
         try (Connection conn = DB.connect();
              PreparedStatement stmt = conn.prepareStatement("SELECT * FROM playlists WHERE PlaylistId=?")) {
             stmt.setLong(1, i);
+
             ResultSet results = stmt.executeQuery();
             if (results.next()) {
                 return new Playlist(results);

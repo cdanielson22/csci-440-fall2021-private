@@ -33,9 +33,24 @@ public class Invoice extends Model {
         billingCity = results.getString("BillingCity");
     }
 
+    // This method gets all the items that are in an invoice and then returns them as a list
     public List<InvoiceItem> getInvoiceItems(){
         //TODO implement
-        return Collections.emptyList();
+        try (Connection conn = DB.connect();
+             PreparedStatement stmt = conn.prepareStatement("SELECT * FROM invoice_items " +
+                     "JOIN invoices i on invoice_items.InvoiceId = i.InvoiceId " +
+                     "WHERE i.InvoiceId=?")) {
+            stmt.setLong(1, invoiceId);
+            ResultSet results = stmt.executeQuery();
+            List<InvoiceItem> resultList = new LinkedList<>(); // put the results in a list that can be returned
+            while (results.next()) {
+                resultList.add(new InvoiceItem(results));
+            }
+            return resultList;
+        } catch (SQLException sqlException) {
+            throw new RuntimeException(sqlException);
+        }
+        //return Collections.emptyList();
     }
     public Customer getCustomer() {
         return null;
@@ -97,6 +112,7 @@ public class Invoice extends Model {
         return all(0, Integer.MAX_VALUE);
     }
 
+    // this method returns all the invioces and has paging implemented in it
     public static List<Invoice> all(int page, int count) {
         try (Connection conn = DB.connect();
              PreparedStatement stmt = conn.prepareStatement(
@@ -115,6 +131,7 @@ public class Invoice extends Model {
         }
     }
 
+    // this method gets an invoice based on the invoiceid
     public static Invoice find(long invoiceId) {
         try (Connection conn = DB.connect();
              PreparedStatement stmt = conn.prepareStatement("SELECT * FROM invoices WHERE InvoiceId=?")) {

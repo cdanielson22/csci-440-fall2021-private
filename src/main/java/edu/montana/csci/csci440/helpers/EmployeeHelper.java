@@ -34,7 +34,7 @@ public class EmployeeHelper {
     // TODO - currently this method just uses the employee.getReports() function, which
     //  issues a query.  Change that to use the employeeMap variable instead
     public static String makeTree(Employee employee, Map<Long, List<Employee>> employeeMap) {
-        StringBuilder list = new StringBuilder("<li><a href='/employees" + employee.getEmployeeId() + "'>"
+        StringBuilder list = new StringBuilder("<li><a href='/employees/" + employee.getEmployeeId() + "'>"
                 + employee.getEmail() + "</a><ul>");
         List<Employee> reports = employeeMap.get(employee.getEmployeeId());
         if (reports != null) {

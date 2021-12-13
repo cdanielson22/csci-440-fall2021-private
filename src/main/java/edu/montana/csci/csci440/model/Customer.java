@@ -7,6 +7,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collections;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -18,11 +19,14 @@ public class Customer extends Model {
     private String lastName;
     private String email;
 
+
+
     public Employee getSupportRep() {
          return Employee.find(supportRepId);
     }
 
     public List<Invoice> getInvoices(){
+
         return Collections.emptyList();
     }
 
@@ -32,6 +36,7 @@ public class Customer extends Model {
         customerId = results.getLong("CustomerId");
         supportRepId = results.getLong("SupportRepId");
         email = results.getString("Email");
+
     }
 
     public String getFirstName() {

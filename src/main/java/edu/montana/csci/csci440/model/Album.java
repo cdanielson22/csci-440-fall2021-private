@@ -30,9 +30,9 @@ public class Album extends Model {
         return Artist.find(artistId);
     }
 
-    public void setArtist(Artist artist) {
-        artistId = artist.getArtistId();
-    }
+    public void setArtist(Artist artist) { artistId = artist.getArtistId(); }
+
+    public void setArtistId(Long artist) {artistId = artist;}
 
     public List<Track> getTracks() {
         return Track.forAlbum(albumId);
@@ -81,7 +81,7 @@ public class Album extends Model {
         }
     }
 
-
+    // this method is used to find an albums basied off the albumId
     public static Album find(long i) {
         try (Connection conn = DB.connect();
              PreparedStatement stmt = conn.prepareStatement("SELECT * FROM albums WHERE AlbumId=?")) {
@@ -97,6 +97,8 @@ public class Album extends Model {
         }
     }
 
+    // This method is used to get all the albums for an artist
+    // uses that artist id to get all from albums with a join on the two tables
     public static List<Album> getForArtist(Long artistId) {
         // TODO implement
         try (Connection conn = DB.connect();
@@ -116,6 +118,7 @@ public class Album extends Model {
         //return Collections.emptyList();
     }
 
+    // This method inserts a new ablum into the database
     @Override
     public boolean create(){ // create method
         if(verify()) { // verify that ablumId not null
@@ -125,19 +128,23 @@ public class Album extends Model {
                 stmt.setLong(2, artistId);
                 stmt.executeUpdate(); // execute the update
                 albumId = DB.getLastID(conn);
+                return true;
             } catch (SQLException sqlException) {
                 throw new RuntimeException(sqlException);
             }
+        } else {
+            return false;
         }
-        return true;
+
 
     }
 
+    // This method is used to update an album in the database
     public boolean update(){ // method to update a row in the table
         if(verify()) { // verifying that albumId is not null
             try (Connection conn = DB.connect(); // connection to the database
                  PreparedStatement stmt = conn.prepareStatement("UPDATE albums SET Title = ? WHERE ArtistId = ?")) { // query to update a row
-                stmt.setString(1, this.title); // setting the values of the ? in the query
+                stmt.setString(1, title); // setting the values of the ? in the query
                 stmt.setLong(2, artistId);
                 stmt.executeUpdate(); // execute the update
             } catch (SQLException sqlException) {
@@ -148,11 +155,24 @@ public class Album extends Model {
         return true;
     }
 
+    // this method is used to delete an album from the database
+    @Override
+    public void delete(){
+        try (Connection conn = DB.connect();
+             PreparedStatement stmt = conn.prepareStatement("DELETE FROM albums WHERE AlbumId=?")) {
+            stmt.setLong(1, albumId);
+            stmt.executeUpdate();
+        } catch (SQLException sqlException) {
+            throw new RuntimeException(sqlException);
+        }
+    }
+
     @Override
     public boolean verify(){ // verify method that clears any current errors and makes sure that title and id are non null values
         _errors.clear();
-        if(artistId == null) {
-            addError("albumId cant be null");
+
+        if(artistId == null || "".equals(Long.toString(artistId))) {
+            addError("artistId cant be null");
         }
         if (title == null || "".equals(title)){
             addError("title cant be null");

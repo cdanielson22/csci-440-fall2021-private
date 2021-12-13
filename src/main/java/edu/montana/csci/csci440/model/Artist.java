@@ -69,6 +69,7 @@ public class Artist extends Model {
         }
     }
 
+    // This method gets a artists given an artistId
     public static Artist find(long i) {
         try (Connection conn = DB.connect();
              PreparedStatement stmt = conn.prepareStatement("SELECT * FROM artists WHERE ArtistId=?")) {
@@ -106,6 +107,7 @@ public class Artist extends Model {
 
     }
 
+    // this method deletes the artist from the database
     @Override
     public void delete(){
         try (Connection conn = DB.connect();
@@ -122,7 +124,7 @@ public class Artist extends Model {
     // this is an update method that also has optimistic concurrency implemented
     public boolean update() {
         if (verify()) {
-            String artName;
+            String artName; // first I get the old artist name from the database
             try (Connection conn = DB.connect();
                  PreparedStatement stmt = conn.prepareStatement("SELECT Name as name FROM artists WHERE ArtistId=" + artistId)) {
                 ResultSet result = stmt.executeQuery();
@@ -130,7 +132,7 @@ public class Artist extends Model {
             } catch (SQLException sqlException) {
                 throw new RuntimeException(sqlException);
             }
-
+            // if the
             if (artistId == 1 && name.equals("DC/AC") && (artName.equals("AC/DC"))) {
                 try (Connection conn = DB.connect();
                      PreparedStatement stmt = conn.prepareStatement("UPDATE artists SET Name = ? WHERE ArtistId = ? and Name = ?")) {

@@ -102,7 +102,7 @@ public class Employee extends Model {
         try (Connection conn = DB.connect();
              PreparedStatement stmt = conn.prepareStatement(
                      "DELETE FROM employees WHERE EmployeeID=?")) { // SQL statment
-            stmt.setLong(1, this.getEmployeeId());
+            stmt.setLong(1, this.employeeId);
             stmt.executeUpdate();
         } catch (SQLException sqlException) {
             throw new RuntimeException(sqlException);
