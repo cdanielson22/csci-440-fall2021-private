@@ -433,7 +433,7 @@ public class Track extends Model {
         }
     }
 
-    // this method verifys that the values thata re given aren't null and can be inserted in to the database
+    // this method verifys that the values that are given aren't null and can be inserted in to the database
     @Override
     public boolean verify() {
         _errors.clear();

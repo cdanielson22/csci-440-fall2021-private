@@ -37,7 +37,7 @@ public class Employee extends Model {
 
 
 
-
+    // method to verify the data given is valid
     @Override
     public boolean verify() {
         _errors.clear(); // clear any existing errors

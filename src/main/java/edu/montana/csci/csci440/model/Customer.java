@@ -96,6 +96,7 @@ public class Customer extends Model {
         }
     }
 
+    // this method gets the customers assoiated with an employee
     public static List<Customer> forEmployee(long employeeId) {
         String query = "SELECT * FROM customers WHERE SupportRepId=?";
         try (Connection conn = DB.connect();
