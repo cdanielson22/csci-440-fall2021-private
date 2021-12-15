@@ -144,7 +144,7 @@ public class Artist extends Model {
                     throw new RuntimeException(sqlException);
                 }
                 return true;
-            } else if (artistId == 1 && !(artName.equals("AC/DC"))) { // if the name has been changed fail the update and dont execute
+            } else if (artistId == 1 && !(name.equals("DC/AC")) && !(artName.equals("AC/DC"))) { // if the name has been changed fail the update and dont execute
                 return false;
             } else { // this is the regular update since name is the same and nothing has been changed
                 try (Connection conn = DB.connect();
